@@ -182,4 +182,26 @@ class ColorTriangleScreenView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : ColorTriangleScreenView) {
+
+        private val cts : ColorTriangleScreen = ColorTriangleScreen(0)
+        private val animator : Animator = Animator(view)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            cts.draw(canvas, paint)
+            animator.animate {
+                cts.update {
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            cts.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }

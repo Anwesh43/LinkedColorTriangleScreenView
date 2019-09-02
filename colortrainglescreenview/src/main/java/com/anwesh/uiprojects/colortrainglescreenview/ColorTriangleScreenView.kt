@@ -18,6 +18,10 @@ val colors : Array<String> = arrayOf("#00BFA5", "#9C27B0", "#64DD17", "#f44336",
 val scGap : Float = 0.05f
 val backColor : Int = Color.parseColor("#BDBDBD")
 val triSizeFactor : Float = 2f
+val squareSides : Int = 4
+val squareSideFactor : Float = 4.5f
+val strokeFactor : Float = 45f
+val squareColor : Int = Color.WHITE
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -31,10 +35,29 @@ fun Canvas.clipTriangle(size : Float) {
     clipPath(path)
 }
 
-fun Canvas.drawTriangleScreen(i : Int, scale : Float, sc : Float, paint : Paint) {
+fun Canvas.drawSquareLine(i : Int, size : Float, sc : Float, paint : Paint) {
+    save()
+    rotate(90f * i)
+    drawLine(-size + 2 * size * sc.divideScale(i, squareSides), -size, size, -size, paint)
+    restore()
+}
+
+fun Canvas.drawStrokedSquare(size : Float, sc : Float, paint : Paint) {
+    val squareSize : Float = size / squareSideFactor
+    paint.strokeCap = Paint.Cap.ROUND
+    paint.strokeWidth = size / strokeFactor
+    paint.color = squareColor
+    for (j in 0..(squareSides - 1)) {
+        drawSquareLine(j, squareSize, sc, paint)
+    }
+}
+
+fun Canvas.drawTriangleScreen(i : Int, scale : Float, sc : Float, paint : Paint) : Float {
     val w : Float = width.toFloat()
     val h : Float = height.toFloat()
     val size : Float = Math.min(w, h) / triSizeFactor
+    val sc1 : Float = scale.divideScale(0, 2)
+    val sc2 : Float = scale.divideScale(1, 2)
     var y : Float = 0f
     if (sc > 0f) {
         y = 2 * size * (1 - sc)
@@ -43,11 +66,16 @@ fun Canvas.drawTriangleScreen(i : Int, scale : Float, sc : Float, paint : Paint)
     translate(w / 2, h / 2)
     clipTriangle(size)
     save()
-    translate(0f, -size -2 * size * scale + y)
+    translate(0f, -size -2 * size * sc2 + y)
     paint.color = Color.parseColor(colors[i])
     drawRect(RectF(-size, 0f, size, 2 * size), paint)
+    save()
+    translate(0f, size)
+    drawStrokedSquare(size, sc1, paint)
     restore()
     restore()
+    restore()
+    return sc2
 }
 
 class ColorTriangleScreenView(ctx : Context) : View(ctx) {
@@ -133,8 +161,8 @@ class ColorTriangleScreenView(ctx : Context) : View(ctx) {
         }
 
         fun draw(canvas : Canvas, sc : Float, paint : Paint) {
-            canvas.drawTriangleScreen(i, state.scale, sc, paint)
-            if (state.scale > 0f) {
+            val sc : Float = canvas.drawTriangleScreen(i, state.scale, sc, paint)
+            if (sc > 0f) {
                 next?.draw(canvas, state.scale, paint)
             }
         }

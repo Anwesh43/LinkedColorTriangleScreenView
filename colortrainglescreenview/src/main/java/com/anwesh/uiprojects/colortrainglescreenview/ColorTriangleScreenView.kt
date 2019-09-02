@@ -15,13 +15,14 @@ import android.graphics.Color
 import android.graphics.RectF
 
 val colors : Array<String> = arrayOf("#00BFA5", "#9C27B0", "#64DD17", "#f44336", "#0D47A1")
-val scGap : Float = 0.05f
+val scGap : Float = 0.01f
 val backColor : Int = Color.parseColor("#BDBDBD")
 val triSizeFactor : Float = 2f
 val squareSides : Int = 4
 val squareSideFactor : Float = 4.5f
 val strokeFactor : Float = 45f
 val squareColor : Int = Color.WHITE
+val delay : Long = 25
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -29,9 +30,9 @@ fun Float.divideScale(i : Int, n : Int) : Float = Math.min(n.inverse(), maxScale
 
 fun Canvas.clipTriangle(size : Float) {
     val path : Path = Path()
-    path.moveTo(-size, size)
-    path.lineTo(0f, -size)
-    path.lineTo(size, size)
+    path.moveTo(-size, 2 * size)
+    path.lineTo(0f, 0f)
+    path.lineTo(size, 2 * size)
     clipPath(path)
 }
 
@@ -63,10 +64,10 @@ fun Canvas.drawTriangleScreen(i : Int, scale : Float, sc : Float, paint : Paint)
         y = 2 * size * (1 - sc)
     }
     save()
-    translate(w / 2, h / 2)
+    translate(w / 2, h / 2 - size)
     clipTriangle(size)
     save()
-    translate(0f, -size -2 * size * sc2 + y)
+    translate(0f,- 2 * size * sc2 + y)
     paint.color = Color.parseColor(colors[i])
     drawRect(RectF(-size, 0f, size, 2 * size), paint)
     save()
@@ -122,7 +123,7 @@ class ColorTriangleScreenView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
@@ -161,9 +162,9 @@ class ColorTriangleScreenView(ctx : Context) : View(ctx) {
         }
 
         fun draw(canvas : Canvas, sc : Float, paint : Paint) {
-            val sc : Float = canvas.drawTriangleScreen(i, state.scale, sc, paint)
-            if (sc > 0f) {
-                next?.draw(canvas, state.scale, paint)
+            val sck : Float = canvas.drawTriangleScreen(i, state.scale, sc, paint)
+            if (sck > 0f) {
+                next?.draw(canvas, sck, paint)
             }
         }
 

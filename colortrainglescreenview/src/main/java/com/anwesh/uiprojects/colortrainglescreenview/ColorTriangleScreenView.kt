@@ -17,3 +17,7 @@ val colors : Array<String> = arrayOf("#00BFA5", "#9C27B0", "#64DD17", "#f44336",
 val scGap : Float = 0.05f
 val backColor : Int = Color.parseColor("#BDBDBD")
 val triSizeFactor : Float = 3f
+
+fun Int.inverse() : Float = 1f / this
+fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
+fun Float.divideScale(i : Int, n : Int) : Float = Math.min(n.inverse(), maxScale(i, n)) * n

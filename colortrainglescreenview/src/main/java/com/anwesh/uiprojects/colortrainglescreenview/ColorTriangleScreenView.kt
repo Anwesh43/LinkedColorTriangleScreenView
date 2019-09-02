@@ -205,4 +205,13 @@ class ColorTriangleScreenView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    companion object {
+
+        fun create(activity : Activity) : ColorTriangleScreenView {
+            val view : ColorTriangleScreenView = ColorTriangleScreenView(activity)
+            activity.setContentView(view)
+            return view
+        }
+    }
 }
